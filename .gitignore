@@ -1,0 +1,23 @@
+# Environment and sensitive files
+.codegpt
+.env
+.env.*
+
+# Backend-specific
+backend/node_modules/
+backend/.vscode/
+backend/.idea/
+backend/dist/
+backend/build/
+backend/*.log
+backend/.cache/
+backend/.eslintcache
+
+# Docker-specific
+docker-compose.override.yml
+.dockerignore
+
+# OS/System-specific
+.DS_Store
+Thumbs.db
+*.swp

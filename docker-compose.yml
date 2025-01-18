@@ -1,0 +1,70 @@
+services:
+  backend:
+    container_name: backend_service
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres_database:5432/telemetry
+      - MQTT_CONNECTION_URL=mqtt://mqtt:1883
+    depends_on:
+      mqtt:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+    networks:
+      - local_net
+
+  pubsub1:
+    container_name: pubsub1
+    image: 2csolutionhub/pubsub-node:0.0.1
+    environment:
+      - MQTT_CONNECTION_URL=mqtt:5672
+      - APP_PORT=5434
+      - APP_LOG_LEVEL=debug
+    depends_on:
+      mqtt:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+    networks:
+      - local_net
+
+  mqtt:
+    container_name: mqtt
+    build:
+      context: ./mqtt_config
+      dockerfile: Dockerfile
+    ports:
+      - 1883:1883
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - local_net
+    volumes:
+      - ./mqtt_config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.config
+      - ./mqtt_config/definitions.json:/opt/definitions.json
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  database:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - local_net
+    healthcheck:
+      test: echo 'db.runCommand("ping")' | mongo
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  local_net:
+    driver: bridge

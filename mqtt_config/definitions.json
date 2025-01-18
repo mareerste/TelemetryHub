@@ -1,0 +1,57 @@
+{
+  "rabbit_version": "3.8.9",
+  "users": [
+    {
+      "name": "guest",
+      "password_hash": "4lfXbEdcPRNW/Zs+4mw67cndOhiEtPHBK7meffzQNPWgwHu8",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "guest",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "stat-info-queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 60000
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "channel_logs",
+      "vhost": "/",
+      "type": "topic",
+      "durable": false,
+      "auto_delete": false
+    }
+  ],
+  "bindings": [
+    {
+      "source": "channel_logs",
+      "vhost": "/",
+      "destination": "stat-info-queue",
+      "destination_type": "queue",
+      "routing_key": "stat-info",
+      "arguments": {}
+    }
+  ]
+}
