@@ -76,6 +76,8 @@ services:
       - "27017:27017"
     networks:
       - local_net
+    volumes:
+      - db_data:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping")' | mongo
       interval: 10s
@@ -85,3 +87,8 @@ services:
 networks:
   local_net:
     driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+
