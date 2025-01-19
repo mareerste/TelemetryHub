@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MQTT Backend API",
+    "version": "1.0.0",
+    "description": "Backend API for communicating with MQTT broker and handling telemetry data."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/api/pause": {
+      "post": {
+        "summary": "Pause Pub-Sub Nodes",
+        "description": "Pauses the data sending of Pub-Sub nodes.",
+        "responses": {
+          "200": {
+            "description": "Nodes paused successfully"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/resume": {
+      "post": {
+        "summary": "Resume Pub-Sub Nodes",
+        "description": "Resumes the data sending of Pub-Sub nodes.",
+        "responses": {
+          "200": {
+            "description": "Nodes resumed successfully"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/data": {
+      "get": {
+        "summary": "Get Telemetry Data",
+        "description": "Fetches telemetry data from the database.",
+        "responses": {
+          "200": {
+            "description": "List of telemetry data",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "brand": "Yamaha",
+                    "model": "MT-07",
+                    "speed": 101.82,
+                    "rpm": 8136,
+                    "throttle_position": 62.48,
+                    "brake_pressure": 88.5,
+                    "lean_angle": 36,
+                    "timestamp": "2025-01-19T10:25:30Z"
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/stats/speed-percentage": {
+      "get": {
+        "summary": "Get Speed Percentage",
+        "description": "Calculates the percentage of models and brands exceeding the speed threshold.",
+        "parameters": [
+          {
+            "name": "speed",
+            "in": "query",
+            "required": true,
+            "description": "Speed threshold to filter data",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Percentage of models and brands above the speed threshold",
+            "content": {
+              "application/json": {
+                "example": {
+                  "Yamaha": {
+                    "MT-07": 35.4,
+                    "R1": 50.3
+                  },
+                  "Kawasaki": {
+                    "Ninja": 40.1
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/stats/lean-angle-range": {
+      "get": {
+        "summary": "Get Lean Angle Range Statistics",
+        "description": "Calculates the percentage of lean angles within a specified range.",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "description": "Starting angle of the range",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "description": "Ending angle of the range",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Percentage of lean angles within the range",
+            "content": {
+              "application/json": {
+                "example": {
+                  "Yamaha": {
+                    "MT-07": 20.1,
+                    "R1": 30.5
+                  },
+                  "Kawasaki": {
+                    "Ninja": 25.3
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/stats/aggressive-drivers": {
+      "get": {
+        "summary": "Get Aggressive Drivers",
+        "description": "Lists the most aggressive drivers grouped by brand and model.",
+        "responses": {
+          "200": {
+            "description": "Aggressive drivers by brand and model",
+            "content": {
+              "application/json": {
+                "example": {
+                  "Yamaha": {
+                    "MT-07": [
+                      {
+                        "brand": "Yamaha",
+                        "model": "MT-07",
+                        "speed": 101.82,
+                        "rpm": 8136,
+                        "throttle_position": 62.48,
+                        "brake_pressure": 88.5,
+                        "lean_angle": 36,
+                        "timestamp": "2025-01-19T10:25:30Z"
+                      }
+                    ]
+                  },
+                  "Kawasaki": {
+                    "Ninja": [
+                      {
+                        "brand": "Kawasaki",
+                        "model": "Ninja",
+                        "speed": 120.5,
+                        "rpm": 9231,
+                        "throttle_position": 70.1,
+                        "brake_pressure": 92.3,
+                        "lean_angle": 40,
+                        "timestamp": "2025-01-19T10:25:30Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  }
+}

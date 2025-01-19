@@ -52,6 +52,22 @@
       "destination_type": "queue",
       "routing_key": "stat-info",
       "arguments": {}
+    },
+    {
+      "source": "channel_logs",
+      "vhost": "/",
+      "destination": "amq.topic",
+      "destination_type": "exchange",
+      "routing_key": "stat-info",
+      "arguments": {}
+    },
+    {
+      "source": "amq.topic",
+      "vhost": "/",
+      "destination": "channel_logs",
+      "destination_type": "exchange",
+      "routing_key": "command",
+      "arguments": {}
     }
   ]
 }

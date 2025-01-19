@@ -16,12 +16,15 @@ COPY wait-for-it.sh /usr/local/bin/wait-for-it
 RUN chmod +x /usr/local/bin/wait-for-it
 
 # Copy the rest of the app's source code
-COPY . .
+# COPY . .
+
+# Copy the rest of the app's source code
+COPY src ./src
 
 # Expose the port your app runs on
 EXPOSE 3000
 
 # Run the application with wait-for-it.sh
-CMD ["/bin/sh", "-c", "wait-for-it mqtt 5672 60 && node index.js"]
+CMD ["/bin/sh", "-c", "wait-for-it mqtt 5672 60 && npm start"]
 
 

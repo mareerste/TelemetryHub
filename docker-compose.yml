@@ -5,8 +5,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - DATABASE_URL=postgres://user:password@postgres_database:5432/telemetry
-      - MQTT_CONNECTION_URL=mqtt://mqtt:1883
+      - MQTT_CONNECTION_URL=${MQTT_BACKEND_CONNECTION_URL}
+      - MONGO_URI=${MONGO_URI}
+      - MQTT_TOPIC=${MQTT_TOPIC}
+      - MQTT_COMMAND_TOPIC=${MQTT_COMMAND_TOPIC}
     depends_on:
       mqtt:
         condition: service_healthy
@@ -21,9 +23,24 @@ services:
     container_name: pubsub1
     image: 2csolutionhub/pubsub-node:0.0.1
     environment:
-      - MQTT_CONNECTION_URL=mqtt:5672
-      - APP_PORT=5434
-      - APP_LOG_LEVEL=debug
+      - MQTT_CONNECTION_URL=${PUBSUB_MQTT_CONNECTION_URL}
+      - APP_PORT=${PUBSUB_APP_PORT}
+      - APP_LOG_LEVEL=${PUBSUB_APP_LOG_LEVEL}
+    depends_on:
+      mqtt:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+    networks:
+      - local_net
+
+  pubsub2:
+    container_name: pubsub2
+    image: 2csolutionhub/pubsub-node:0.0.1
+    environment:
+      - MQTT_CONNECTION_URL=${PUBSUB_MQTT_CONNECTION_URL}
+      - APP_PORT=${PUBSUB_APP_PORT}
+      - APP_LOG_LEVEL=${PUBSUB_APP_LOG_LEVEL}
     depends_on:
       mqtt:
         condition: service_healthy
