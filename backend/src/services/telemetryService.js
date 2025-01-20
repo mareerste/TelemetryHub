@@ -192,6 +192,7 @@ const getAggressiveDrivers = async () => {
 
   return results.reduce((acc, item) => {
     const { _id: brand, models } = item;
+    models.sort((a, b) => a.model.localeCompare(b.model));
     acc[brand] = models.reduce((modelsAcc, model) => {
       modelsAcc[model.model] = model.drivers;
       return modelsAcc;
