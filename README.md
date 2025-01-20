@@ -8,6 +8,7 @@ A backend service for communicating with an MQTT broker to process and analyze t
 
 - [Overview](#overview)
 - [Features](#features)
+- [Database Schema Initialization](#database-schema-initialization)
 - [Installation](#installation)
   - [Clone the Repository](#clone-the-repository)
   - [Environment Setup](#environment-setup)
@@ -29,6 +30,12 @@ TelemetryHub is designed to handle and process telemetry data received through M
 - **Statistics API**: Provides endpoints for analyzing and retrieving insights from the data.
 - **Dockerized Deployment**: Simplifies the setup with a multi-container Docker Compose environment.
 - **Pub-Sub Nodes**: Simulate real-world telemetry data flow. Learn more about the Pub-Sub node [here](https://hub.docker.com/r/2csolutionhub/pubsub-node).
+
+---
+
+## Database Schema Initialization
+
+The database schema is initialized automatically when the backend service starts. The application uses Mongoose, an Object Data Modeling (ODM) library for MongoDB, which defines and enforces the schema within the application code. This means there are no manual steps required to create the schema or indexes.
 
 ---
 
