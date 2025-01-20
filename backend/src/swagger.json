@@ -1,195 +1,243 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "MQTT Backend API",
+    "title": "MQTT Telemetry API",
     "version": "1.0.0",
-    "description": "Backend API for communicating with MQTT broker and handling telemetry data."
+    "description": "API for managing and retrieving telemetry data from Pub-Sub nodes."
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Local server"
+      "url": "http://localhost:3000/api",
+      "description": "Local Server"
     }
   ],
   "paths": {
-    "/api/pause": {
-      "post": {
-        "summary": "Pause Pub-Sub Nodes",
-        "description": "Pauses the data sending of Pub-Sub nodes.",
-        "responses": {
-          "200": {
-            "description": "Nodes paused successfully"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/resume": {
-      "post": {
-        "summary": "Resume Pub-Sub Nodes",
-        "description": "Resumes the data sending of Pub-Sub nodes.",
-        "responses": {
-          "200": {
-            "description": "Nodes resumed successfully"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/data": {
+    "/data": {
       "get": {
-        "summary": "Get Telemetry Data",
-        "description": "Fetches telemetry data from the database.",
+        "summary": "Retrieve telemetry data",
+        "description": "Fetch telemetry data with optional pagination and sorting. Allowed filters are brand, model, speed, rpm, throttle_position, brake_pressure, lean_angle, and timestamp. ",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination.",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page.",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "Field to sort the results by.",
+            "schema": {
+              "type": "string",
+              "example": "timestamp"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "description": "Filter criteria as a JSON string.",
+            "schema": {
+              "type": "string",
+              "example": "{\"brand\": \"Yamaha\"}"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of telemetry data",
+            "description": "Successful response with telemetry data.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "brand": "Yamaha",
+                      "model": "MT-07",
+                      "speed": 101.82,
+                      "rpm": 8136,
+                      "throttle_position": 62.48,
+                      "brake_pressure": 88.5,
+                      "lean_angle": 36,
+                      "timestamp": "2024-01-01T12:00:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "currentPage": 1,
+                    "totalPages": 10,
+                    "totalCount": 100
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while retrieving data."
+          }
+        }
+      }
+    },
+    "/command": {
+      "post": {
+        "summary": "Send a command to Pub-Sub nodes",
+        "description": "Send a command to pause or resume data publishing from Pub-Sub nodes. Allowed actions are pause and resume.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": ["pause", "resume"],
+                    "description": "Action to perform: pause or resume."
+                  }
+                },
+                "required": ["action"]
+              },
+              "example": {
+                "action": "pause"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command sent successfully."
+          },
+          "400": {
+            "description": "Invalid command action provided."
+          },
+          "500": {
+            "description": "Server error while sending the command."
+          }
+        }
+      }
+    },
+    "/stats/speed-percentage": {
+      "get": {
+        "summary": "Get speed percentage statistics",
+        "description": "Retrieve the percentage of models exceeding a specified speed threshold.",
+        "parameters": [
+          {
+            "name": "speed",
+            "in": "query",
+            "required": true,
+            "description": "Speed threshold for percentage calculation.",
+            "schema": {
+              "type": "number",
+              "example": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Speed percentage statistics retrieved successfully.",
             "content": {
               "application/json": {
                 "example": [
                   {
                     "brand": "Yamaha",
                     "model": "MT-07",
-                    "speed": 101.82,
-                    "rpm": 8136,
-                    "throttle_position": 62.48,
-                    "brake_pressure": 88.5,
-                    "lean_angle": 36,
-                    "timestamp": "2025-01-19T10:25:30Z"
+                    "percentage": 45.0
                   }
                 ]
               }
             }
           },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/stats/speed-percentage": {
-      "get": {
-        "summary": "Get Speed Percentage",
-        "description": "Calculates the percentage of models and brands exceeding the speed threshold.",
-        "parameters": [
-          {
-            "name": "speed",
-            "in": "query",
-            "required": true,
-            "description": "Speed threshold to filter data",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Percentage of models and brands above the speed threshold",
-            "content": {
-              "application/json": {
-                "example": {
-                  "Yamaha": {
-                    "MT-07": 35.4,
-                    "R1": 50.3
-                  },
-                  "Kawasaki": {
-                    "Ninja": 40.1
-                  }
-                }
-              }
-            }
+          "400": {
+            "description": "Invalid speed threshold provided."
           },
           "500": {
-            "description": "Internal server error"
+            "description": "Server error while calculating speed percentage."
           }
         }
       }
     },
-    "/api/stats/lean-angle-range": {
+    "/stats/lean-angle-range": {
       "get": {
-        "summary": "Get Lean Angle Range Statistics",
-        "description": "Calculates the percentage of lean angles within a specified range.",
+        "summary": "Get lean angle range statistics",
+        "description": "Retrieve the percentage of models within a specified lean angle range.",
         "parameters": [
           {
             "name": "from",
             "in": "query",
             "required": true,
-            "description": "Starting angle of the range",
+            "description": "Minimum lean angle.",
             "schema": {
-              "type": "number"
+              "type": "number",
+              "example": 10
             }
           },
           {
             "name": "to",
             "in": "query",
             "required": true,
-            "description": "Ending angle of the range",
+            "description": "Maximum lean angle.",
             "schema": {
-              "type": "number"
+              "type": "number",
+              "example": 50
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Percentage of lean angles within the range",
+            "description": "Lean angle range statistics retrieved successfully.",
             "content": {
               "application/json": {
-                "example": {
-                  "Yamaha": {
-                    "MT-07": 20.1,
-                    "R1": 30.5
-                  },
-                  "Kawasaki": {
-                    "Ninja": 25.3
+                "example": [
+                  {
+                    "brand": "Yamaha",
+                    "model": "MT-07",
+                    "percentage": 30.0
                   }
-                }
+                ]
               }
             }
           },
+          "400": {
+            "description": "Invalid lean angle range provided."
+          },
           "500": {
-            "description": "Internal server error"
+            "description": "Server error while calculating lean angle range."
           }
         }
       }
     },
-    "/api/stats/aggressive-drivers": {
+    "/stats/aggressive-drivers": {
       "get": {
-        "summary": "Get Aggressive Drivers",
-        "description": "Lists the most aggressive drivers grouped by brand and model.",
+        "summary": "Get aggressive driver statistics",
+        "description": "Retrieve a hierarchical breakdown of aggressive drivers by brand and model.",
         "responses": {
           "200": {
-            "description": "Aggressive drivers by brand and model",
+            "description": "Aggressive driver statistics retrieved successfully.",
             "content": {
               "application/json": {
                 "example": {
                   "Yamaha": {
                     "MT-07": [
                       {
-                        "brand": "Yamaha",
-                        "model": "MT-07",
-                        "speed": 101.82,
-                        "rpm": 8136,
-                        "throttle_position": 62.48,
-                        "brake_pressure": 88.5,
-                        "lean_angle": 36,
-                        "timestamp": "2025-01-19T10:25:30Z"
-                      }
-                    ]
-                  },
-                  "Kawasaki": {
-                    "Ninja": [
-                      {
-                        "brand": "Kawasaki",
-                        "model": "Ninja",
                         "speed": 120.5,
-                        "rpm": 9231,
-                        "throttle_position": 70.1,
-                        "brake_pressure": 92.3,
-                        "lean_angle": 40,
-                        "timestamp": "2025-01-19T10:25:30Z"
+                        "rpm": 9000,
+                        "throttle_position": 70.0,
+                        "brake_pressure": 50.0,
+                        "lean_angle": 40.0,
+                        "timestamp": "2024-01-01T12:00:00Z"
                       }
                     ]
                   }
@@ -198,7 +246,7 @@
             }
           },
           "500": {
-            "description": "Internal server error"
+            "description": "Server error while retrieving aggressive driver statistics."
           }
         }
       }
