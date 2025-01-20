@@ -13,8 +13,6 @@ A backend service for communicating with an MQTT broker to process and analyze t
   - [Environment Setup](#environment-setup)
   - [Run the Application](#run-the-application)
 - [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -30,6 +28,7 @@ TelemetryHub is designed to handle and process telemetry data received through M
 - **Data Storage**: Efficiently stores telemetry data in MongoDB.
 - **Statistics API**: Provides endpoints for analyzing and retrieving insights from the data.
 - **Dockerized Deployment**: Simplifies the setup with a multi-container Docker Compose environment.
+- **Pub-Sub Nodes**: Simulate real-world telemetry data flow. Learn more about the Pub-Sub node [here](https://hub.docker.com/r/2csolutionhub/pubsub-node).
 
 ---
 
